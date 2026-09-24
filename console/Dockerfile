@@ -36,7 +36,7 @@ ENV PATH=/root/.pnpm/bin:$PATH
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy over .npmrc if applicable
-COPY .npmr[c] ./
+COPY .npmrc* ./
 
 # Install global dependencies
 RUN npm install -g ember-cli pnpm 
