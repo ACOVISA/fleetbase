@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleetbase-console
+  namespace: fleetbase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleetbase-console
+  template:
+    metadata:
+      labels:
+        app: fleetbase-console
+    spec:
+      containers:
+        - name: console
+          image: acovisadocker.azurecr.io/fleetbase-console-dev:#{tag}#
+          ports:
+            - containerPort: 4200
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetbase-console
+  namespace: fleetbase
+spec:
+  selector:
+    app: fleetbase-console
+  ports:
+    - port: 4200
+      targetPort: 4200

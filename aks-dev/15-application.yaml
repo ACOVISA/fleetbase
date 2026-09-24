@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleetbase-application
+  namespace: fleetbase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleetbase-application
+  template:
+    metadata:
+      labels:
+        app: fleetbase-application
+    spec:
+      containers:
+        - name: application
+          image: fleetbase/fleetbase-api:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "384Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"
+          envFrom:
+            - configMapRef:
+                name: fleetbase-app-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fleetbase-mysql
+                  key: MYSQL_PASSWORD
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fleetbase-app
+                  key: APP_KEY
+          volumeMounts:
+            - name: storage-app
+              mountPath: /fleetbase/api/storage/app
+      volumes:
+        - name: storage-app
+          persistentVolumeClaim:
+            claimName: fleetbase-storage-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetbase-application
+  namespace: fleetbase
+spec:
+  selector:
+    app: fleetbase-application
+  ports:
+    - port: 8000
+      targetPort: 8000

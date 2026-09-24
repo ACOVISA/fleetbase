@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleetbase-socket
+  namespace: fleetbase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleetbase-socket
+  template:
+    metadata:
+      labels:
+        app: fleetbase-socket
+    spec:
+      containers:
+        - name: socket
+          image: socketcluster/socketcluster:v17.4.0
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"
+          env:
+            - name: SOCKETCLUSTER_WORKERS
+              value: "1"
+            - name: SOCKETCLUSTER_BROKERS
+              value: "1"
+            - name: SOCKETCLUSTER_OPTIONS
+              value: '{"origins":"https://fleetbase-dev.acovisa.com.br:*"}'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetbase-socket
+  namespace: fleetbase
+spec:
+  selector:
+    app: fleetbase-socket
+  ports:
+    - port: 8000
+      targetPort: 8000

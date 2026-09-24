@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleetbase-queue
+  namespace: fleetbase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleetbase-queue
+  template:
+    metadata:
+      labels:
+        app: fleetbase-queue
+    spec:
+      containers:
+        - name: queue
+          image: fleetbase/fleetbase-api:latest
+          args: ["php", "artisan", "queue:work"]
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"
+          envFrom:
+            - configMapRef:
+                name: fleetbase-app-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fleetbase-mysql
+                  key: MYSQL_PASSWORD
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fleetbase-app
+                  key: APP_KEY

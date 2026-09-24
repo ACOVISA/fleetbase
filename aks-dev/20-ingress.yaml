@@ -1,0 +1,66 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fleetbase
+  namespace: fleetbase
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "600m"
+spec:
+  rules:
+    - host: fleetbase-dev.acovisa.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fleetbase-console
+                port:
+                  number: 4200
+    - host: fleetbase-api-dev.acovisa.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fleetbase-application
+                port:
+                  number: 8000
+  tls:
+    - hosts:
+        - fleetbase-dev.acovisa.com.br
+        - fleetbase-api-dev.acovisa.com.br
+      secretName: fleetbase-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fleetbase-socket
+  namespace: fleetbase
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/enable-websocket: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+spec:
+  rules:
+    - host: fleetbase-socket-dev.acovisa.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fleetbase-socket
+                port:
+                  number: 8000
+  tls:
+    - hosts:
+        - fleetbase-socket-dev.acovisa.com.br
+      secretName: fleetbase-socket-tls

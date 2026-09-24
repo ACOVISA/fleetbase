@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleetbase-redis
+  namespace: fleetbase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleetbase-redis
+  template:
+    metadata:
+      labels:
+        app: fleetbase-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:4-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetbase-redis
+  namespace: fleetbase
+spec:
+  selector:
+    app: fleetbase-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
